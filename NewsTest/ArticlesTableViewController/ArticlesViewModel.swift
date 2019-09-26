@@ -1,5 +1,5 @@
 //
-//  FeedsViewModel.swift
+//  ArticlesViewModel.swift
 //  NewsTest
 //
 //  Created by Dmitry Kanivets on 26.06.18.
@@ -9,14 +9,14 @@
 import Foundation
 import ReactiveSwift
 
-protocol FeedsViewModelProtocol {
-    var updateItemsAction: Action<[String : AnyObject], [Article], NSError> { get }
+protocol ArticlesViewModelProtocol {
+    var updateItemsAction: Action<(from: Int, batch: Int, source: Source), [Article], NSError> { get }
     var items: [Article] { get set }
     var selectedFeed: MutableProperty<Article?> { get set }
     var source: Source { get }
 }
 
-class FeedsViewModel: FeedsViewModelProtocol {
+class ArticlesViewModel: ArticlesViewModelProtocol {
     lazy var updateItemsAction = NewsService.pullArticlesAction
     var items: [Article] = []
     var selectedFeed: MutableProperty<Article?> = MutableProperty(nil)

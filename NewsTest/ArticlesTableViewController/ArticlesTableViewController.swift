@@ -9,21 +9,20 @@
 import UIKit
 import ReactiveCocoa
 import ReactiveSwift
+import SDWebImage
+import SafariServices
 
-class FeedsTableViewController: UITableViewController {
+class ArticlesTableViewController: UITableViewController {
     var source: Source!
-    var viewModel: FeedsViewModelProtocol!
-    var timer: Timer?
+    var viewModel: ArticlesViewModelProtocol!
     let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
 
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.update()
         self.setupUI()
         self.update()
-        timer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(update), userInfo: nil, repeats: true)
     }
 
     
@@ -42,7 +41,7 @@ class FeedsTableViewController: UITableViewController {
     }
     
     @objc func update() {
-        self.viewModel.updateItemsAction.apply(["source" : source.id as AnyObject]).on(
+        self.viewModel.updateItemsAction.apply((from: self.viewModel.items.count, batch: 10, source: self.source)).on(
             starting: {
                 self.showIndicator()
         },
@@ -50,7 +49,7 @@ class FeedsTableViewController: UITableViewController {
                 self.hideIndicator()
         },
             value: { items in
-                self.viewModel.items = items
+                self.viewModel.items.append(contentsOf: items)
                 self.tableView.reloadData()
         }).start()
     }
@@ -63,25 +62,34 @@ class FeedsTableViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: FeedItemTableViewCell.indetifier) as! FeedItemTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: ArticleItemTableViewCell.indetifier) as! ArticleItemTableViewCell
         cell.titleLabel.text = self.viewModel.items[indexPath.row].title
+        cell.authorLabel.text = self.viewModel.items[indexPath.row].author
+        cell.sourceLabel.text = self.source.name
+        cell.descriptionLabel.text = self.viewModel.items[indexPath.row].descriptionText
+        
+        if let image = self.viewModel.items[indexPath.row].urlToImage {
+            cell.urlToImageView.sd_setImage(with: URL(string: image), placeholderImage: UIImage(named: "placeholder.png"))
+        } else {
+            cell.urlToImageView.image = nil
+        }
+
+        if indexPath.row == self.viewModel.items.count - 1 && (indexPath.row + 1) % 10 == 0 {
+            self.update()
+        }
         
         return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 120
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
-        self.viewModel.selectedFeed.value = self.viewModel.items[indexPath.row]
-        self.performSegue(withIdentifier: "showDetail", sender: indexPath);
+        guard let url = URL(string: self.viewModel.items[indexPath.row].url) else { return }
+        let sfVC = SFSafariViewController(url: url)
+        self.navigationController?.pushViewController(sfVC, animated: true)
     }
-    
-    // MARK: - UIStoryboardSegue
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if let controller = segue.destination as? FeedItemDetailViewController, let indexPath = sender as? IndexPath, (segue.identifier == "showDetail") {
-            controller.article = self.viewModel.items[indexPath.row]
-        }
-    }
-
 }

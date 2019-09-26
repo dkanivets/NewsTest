@@ -11,7 +11,11 @@ import Foundation
 struct Source {
     var id: String
     var name: String
-    var description: String
+    var descriptionText: String
+    var url: String
+    var category: String
+    var language: String
+    var country: String
 }
 
 struct Article {
@@ -19,7 +23,7 @@ struct Article {
     var title: String
     var descriptionText: String?
     var url: String
-    var urlToImage: String
+    var urlToImage: String?
     var publishedAt: String
     var content: String
 }
