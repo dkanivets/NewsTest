@@ -8,13 +8,6 @@
 
 import UIKit
 
-//category
-//Find sources that display news of this category. Possible options: business entertainment general health science sports technology . Default: all categories.
-//language
-//Find sources that display news in a specific language. Possible options: ar de en es fr he it nl no pt ru se ud zh . Default: all languages.
-//country
-//Find sources that display news in a specific country. Possible options: ae ar at au be bg br ca ch cn co cu cz de eg fr gb gr hk hu id ie il in it jp kr lt lv ma mx my ng nl no nz ph pl pt ro rs ru sa se sg si sk th tr tw ua us ve za . Default: all countries.
-
 enum Category: String, CaseIterable {
     case all = "", business = "business", entertainment = "entertainment", general = "general", health = "health", science = "science", sports = "sports", technology = "technology"
 }
@@ -24,7 +17,7 @@ enum Language: String, CaseIterable {
 }
 
 enum Country: String, CaseIterable {
-    case all = "", us = "us"
+    case all = "", us = "us", ae = "ae", ar = "ar", at = "at", au = "au", be = "be", bg = "bg", br = "br", ca = "ca", ch = "ch", cn = "cn", co = "co", cu = "cu", cz = "cz", de = "de", eg = "eg", fr = "fr", gb = "gb", gr = "gr", hk = "hk", hu = "hu", id = "id", ie = "ie", il = "il", it = "it", jp = "jp", kr = "kr", lt = "lt", ua = "ua", ru = "ru"
 }
 
 struct Filter {
