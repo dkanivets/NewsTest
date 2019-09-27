@@ -11,9 +11,10 @@ import ReactiveSwift
 import ReactiveCocoa
 
 class SourcesViewController: UITableViewController {
-    var viewModel: SourcesViewModelProtocol = SourcesViewModel()
-    let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
-    var filter = Filter(category: .all, language: .all, country: .all)
+    private var viewModel: SourcesViewModelProtocol = SourcesViewModel()
+    private let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
+    private var filter = Filter(category: .all, language: .all, country: .all)
+    private var pullToRefresh = UIRefreshControl()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,6 +42,8 @@ class SourcesViewController: UITableViewController {
     fileprivate func setupUI() {
         tableView.tableFooterView = UIView(frame: .zero)
         activityIndicator.hidesWhenStopped = true
+        pullToRefresh.addTarget(self, action: #selector(refresh), for: .valueChanged)
+        tableView.addSubview(pullToRefresh)
     }
     
     fileprivate func showIndicator() {
@@ -50,9 +53,14 @@ class SourcesViewController: UITableViewController {
     
     fileprivate func hideIndicator() {
         self.navigationItem.titleView = nil
+        pullToRefresh.endRefreshing()
     }
     
-    func update(filter: Filter) {
+    @objc func refresh() {
+        self.update(filter: filter)
+    }
+    
+    fileprivate func update(filter: Filter) {
         self.viewModel.updateItemsAction.apply(filter).on(
             starting: {
                 self.showIndicator()

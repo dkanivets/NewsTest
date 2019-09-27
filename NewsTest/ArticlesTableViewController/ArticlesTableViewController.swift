@@ -15,8 +15,8 @@ import SafariServices
 class ArticlesTableViewController: UITableViewController {
     var source: Source!
     var viewModel: ArticlesViewModelProtocol!
-    let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
-
+    private let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
+    private var pullToRefresh = UIRefreshControl()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,10 +34,13 @@ class ArticlesTableViewController: UITableViewController {
     fileprivate func showIndicator() {
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: activityIndicator)
         self.activityIndicator.isHidden = false
+        pullToRefresh.addTarget(self, action: #selector(update), for: .valueChanged)
+        tableView.addSubview(pullToRefresh)
     }
     
     fileprivate func hideIndicator() {
         self.navigationItem.rightBarButtonItem = nil
+        pullToRefresh.endRefreshing()
     }
     
     @objc func update() {
